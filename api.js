@@ -1,6 +1,7 @@
 module.exports={
-  registerDevice:registerDevice,
-  deleteDevice:deleteDevice
+  // registerDevice:registerDevice,
+  deleteDevice:deleteDevice,
+  setDevices:setDevices
 }
 
 var request=require("request");
@@ -41,4 +42,21 @@ function deleteDevice(deviceId,cb){
 }
 function host(){
     return "http://"+env.get("TEST_SERVER");
+}
+function setDevices(devices,cb){
+    log.info("Set device:", JSON.stringify(devices));
+    var args={
+      url:host()+"/api/session/"+comm.getSessionId()+"/devices",
+      body:devices,
+      json:true,
+      method:"PUT"
+    }
+    request(args,function(err,res,body){
+      if (res && res.statusCode===200){
+        log.info("Device set successfuly");
+      }else{
+        log.info("Device set failed.",body);
+      }
+      cb();
+    });
 }

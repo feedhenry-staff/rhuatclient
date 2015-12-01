@@ -15,22 +15,26 @@ function getSessionId() {
 }
 
 function init(cb) {
-  var WebSocketClient = require('websocket').client
-  var wsClient = new WebSocketClient();
-  wsClient.on("connect", onConnection);
-  wsClient.on("connectFailed", onConnectionFailed);
-  wsClient.on("close", onClose);
   var svrUrl = env.get("TEST_SERVER");
   log.info("Start to connect server: ", svrUrl);
-  wsClient.connect("ws://" + svrUrl);
+  var wsClient = require('socket.io-client')("http://" + svrUrl);
+  // var wsClient = new WebSocketClient();
+  wsClient.on("connect", onConnection);
+  wsClient.on("connect_error", onConnectionFailed);
+  wsClient.on("connect_timeout", onConnectionFailed);
+  wsClient.on("close", onClose);
+  conn = wsClient;
   initCb = cb;
 }
 
-function onConnection(connection) {
+var eventRegistered=false;
+function onConnection() {
   log.info("Connection made.");
-  conn = connection;
-  connection.on("ping", onPing);
-  connection.on("message", onMessage);
+  if (!eventRegistered){
+  conn.on("ping", onPing);
+  conn.on("message", onMessage);
+  eventRegistered=true;
+  }
 }
 
 function onClose(connection, reason) {
@@ -42,11 +46,12 @@ function onConnectionFailed(err) {
   log.error(err);
 }
 
-function onPing(cancel, data) {
+function onPing(data) {
   data = data.toString("utf8");
   if (data.length > 0) {
     log.info("Get session id: ", data);
     sessionId = data;
+    require("./deviceAgent").updateDevices();
   }
   if (initCb) {
     initCb();
@@ -55,7 +60,7 @@ function onPing(cancel, data) {
 }
 
 function onMessage(msg) {
-  var data = msg.utf8Data;
+  var data = msg.toString("utf8");
   try {
     var obj = JSON.parse(data);
     var reqData = obj.data;
@@ -79,5 +84,5 @@ function reply(msgId, data) {
     data: data,
     isReply: true
   }
-  conn.sendUTF(JSON.stringify(msg));
+  conn.emit("message",JSON.stringify(msg));
 }

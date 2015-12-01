@@ -1,0 +1,53 @@
+#! /usr/bin/env node
+var fs=require("fs");
+var passed=true;
+console.log("Check rhuat client dependencies");
+preCheck("Homebrew","brew","Home brew is not installed. checkout http://brew.sh/");
+preCheck("iDeviceInstaller","ideviceinfo","Need latest ideviceinstaller installed. Run: brew install --HEAD ideviceinstaller");
+preCheck("libimobiledevice","ideviceinfo","Need latest libimobiledevice installed. Run: brew install --HEAD libimobiledevice");
+if (passed){
+  console.log("All pre checks passed");
+  console.log("Please also make sure ANDROID_HOME env var setup correctly.")
+}else{
+  console.log("Pre-install check failed.");
+  process.exit(1);
+}
+function preCheckEnv(key,faileMsg){
+  process.stdout.write("Environment Var: "+key+" .... ");
+  if (typeof process.env[key] === "undefined"){
+      process.stdout.write("NO\n");
+      console.log("Please set $"+key);
+      passed=false;
+  }else{
+      process.stdout.write("YES"+"\n");
+  }
+}
+function preCheck(name,cmd,faileMsg){
+  process.stdout.write(name+" .... ");
+  if (!checkCmd(cmd)){
+      process.stdout.write("NO"+"\n");
+      console.log(faileMsg);
+      passed=false;
+  }else{
+      process.stdout.write("YES"+"\n");
+  }
+}
+function checkCmd(name){
+  var found = fs.existsSync(name);
+  if (!found) {
+    var bins = process.env.PATH.split(':');
+    var path = _prependDirSeparator(name);
+    for (var i = 0; !found && i < bins.length; i++) {
+      found = fs.existsSync(bins[i] + path);
+    }
+  }
+  return found;
+}
+function _prependDirSeparator(str) {
+
+  if (str[0] !== "/" && str[0] !== "\\") {
+    str = "/" + str;
+  }
+
+  return str;
+};
