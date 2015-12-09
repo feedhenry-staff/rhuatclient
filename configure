@@ -5,9 +5,10 @@ console.log("Check rhuat client dependencies");
 preCheck("Homebrew","brew","Home brew is not installed. checkout http://brew.sh/");
 preCheck("iDeviceInstaller","ideviceinfo","Need latest ideviceinstaller installed. Run: brew install --HEAD ideviceinstaller");
 preCheck("libimobiledevice","ideviceinfo","Need latest libimobiledevice installed. Run: brew install --HEAD libimobiledevice");
+preCheck("adb","adb","adb is not found in PATH.");
 if (passed){
   console.log("All pre checks passed");
-  console.log("Please also make sure ANDROID_HOME env var setup correctly.")
+  console.log("Please also make sure ANDROID_HOME & JAVA_HOME env var setup correctly.")
 }else{
   console.log("Pre-install check failed.");
   process.exit(1);

@@ -68,7 +68,7 @@ function onMessage(msg) {
     agent.forwardMsg(reqData, function(err, body) {
       if (err) {
         log.error(err);
-        //TODO error should be sent back
+        reply(msgId,err,true);
       } else {
         reply(msgId, body);
       }
@@ -78,11 +78,12 @@ function onMessage(msg) {
   }
 }
 
-function reply(msgId, data) {
+function reply(msgId, data,isError) {
   var msg = {
     msgId: msgId,
     data: data,
-    isReply: true
+    isReply: true,
+    isError:!!isError
   }
   conn.emit("message",JSON.stringify(msg));
 }
