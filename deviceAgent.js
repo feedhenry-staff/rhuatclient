@@ -20,20 +20,20 @@ function forwardMsg(data, cb) {
     appium.startAppiumServer(function(err, server) {
       prepareData(data, server.getHost());
       request(data, function(err, response, body) {
-        if (!err && response && response.statusCode===303){
-          var sessionId=response.headers.location.split("/session/")[1];
+        if (err){
+          cb(err);
+        }else if (response.statusCode === 200){
+          var res=JSON.parse(body);
+          var sessionId=res.sessionId;
           appiumMap[sessionId]=server;
           server.on("exit",function(){
             delete appiumMap[sessionId];
           });
           cb(null,JSON.stringify({sessionId:sessionId}));
         }else{
-          if (response && response.statusCode >=400){
-            cb(body);
-          }else{
-            cb(err,body);
-          }
+          cb(body);
         }
+
       });
     });
   } else {
@@ -52,6 +52,7 @@ function forwardMsg(data, cb) {
         }
       });
     } else {
+      log.error("SessionId: ",sesId);
       cb(new Error("session not found."));
     }
   }

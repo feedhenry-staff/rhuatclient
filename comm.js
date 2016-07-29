@@ -47,15 +47,17 @@ function onConnectionFailed(err) {
 }
 
 function onPing(data) {
-  data = data.toString("utf8");
-  if (data.length > 0) {
-    log.info("Get session id: ", data);
-    sessionId = data;
-    require("./deviceAgent").updateDevices();
-  }
-  if (initCb) {
-    initCb();
-    initCb = null;
+  if (data){
+    data = data.toString("utf8");
+    if (data.length > 0) {
+      log.info("Get session id: ", data);
+      sessionId = data;
+      require("./deviceAgent").updateDevices();
+    }
+    if (initCb) {
+      initCb();
+      initCb = null;
+    }
   }
 }
 

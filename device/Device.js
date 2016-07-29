@@ -22,7 +22,12 @@ Device.prototype.startCheckDevice = function() {
         return;
       }
       running = true;
+      var timeout=setTimeout(function(){
+        log.warn("device list timeout");
+        running=false;
+      },5000);
       this.getConnectedDevices(function(err, curDes) {
+        clearTimeout(timeout);
         curDes=_.filter(curDes,function(curDe){
           return curDe.name !="-";
         });
